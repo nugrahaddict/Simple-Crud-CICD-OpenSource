@@ -1,0 +1,38 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: |
+          npm install
+
+      - name: Build Docker image
+        run: |
+          docker build -t crud-backend .
+
+      - name: Run tests
+        run: |
+          # Tambahkan perintah untuk menjalankan tes di sini jika ada
+          echo "No tests defined"
+
+      - name: Push Docker image
+        run: |
+          echo ${{ secrets.DOCKER_HUB_PASSWORD }} | docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin
+          docker tag crud-backend ${{ secrets.DOCKER_HUB_USERNAME }}/crud-backend:latest
+          docker push ${{ secrets.DOCKER_HUB_USERNAME }}/crud-backend:latest
